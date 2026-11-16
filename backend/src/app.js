@@ -495,12 +495,27 @@ app.get(['/RentPro.apk', '/RentPro-v2.apk', '/download/apk', '/api/download/apk'
   }
 });
 
-const distPath = path.join(__dirname, '..', '..', 'mobile', 'dist');
-if (fs.existsSync(distPath)) {
-  app.use(express.static(distPath));
+const candidatePublicDirs = [
+  path.join(__dirname, '..', 'public'),
+  path.join(__dirname, '..', 'dist'),
+  path.join(__dirname, '..', '..', 'mobile', 'dist'),
+  path.join(process.cwd(), 'backend', 'public'),
+  path.join(process.cwd(), 'mobile', 'dist')
+];
+
+let publicDir = null;
+for (const dir of candidatePublicDirs) {
+  if (fs.existsSync(dir) && fs.existsSync(path.join(dir, 'index.html'))) {
+    publicDir = dir;
+    break;
+  }
+}
+
+if (publicDir) {
+  app.use(express.static(publicDir));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) return next();
-    res.sendFile(path.join(distPath, 'index.html'));
+    res.sendFile(path.join(publicDir, 'index.html'));
   });
 }
 
