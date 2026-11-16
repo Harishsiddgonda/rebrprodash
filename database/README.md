@@ -1,53 +1,68 @@
 # RentPro Database
 
-RentPro uses a lightweight, zero-dependency persistent JSON document database store located at `backend/data.json`.
+RentPro features dual-layer database architecture:
+1. **MongoDB Database (Production & Cloud)**: Full Mongoose ODM integration supporting local MongoDB instances and cloud MongoDB Atlas clusters.
+2. **Persistent JSON Document Store (Zero-Config Fallback)**: Built-in file-backed store at `backend/data.json` that runs out-of-the-box with zero database installation required.
 
-## Schema & Collections
+---
 
-### 1. `flats`
-Stores apartment units and tenant occupancy details:
-- `id` (Number): Unique flat identifier
-- `flatNumber` (String): Unit number (e.g., "101", "201")
-- `tenantName` (String): Current tenant's full name (or empty string if vacant)
-- `phone` (String): Contact phone number
-- `monthlyRent` (Number): Base monthly rental amount in INR (₹)
-- `electricityReading` (Number): Initial / opening electricity meter reading
-- `waterReading` (Number): Initial / opening water meter reading
-- `occupied` (Boolean): Automatic flag indicating whether the unit is currently leased
+## Connecting MongoDB
 
-### 2. `bills`
-Stores monthly generated invoices and payment ledger:
-- `id` (Number): Unique invoice identifier
-- `flatId` (Number): Foreign key referencing `flats.id`
-- `flatNumber` (String): Flat number
-- `tenantName` (String): Tenant name on the bill
-- `month` (String): Billing cycle period in `YYYY-MM` format (e.g. `2026-10`)
-- `rent` (Number): Rent amount
-- `electricityPrevious` (Number): Opening meter reading for the billing month
-- `electricityCurrent` (Number): Closing meter reading
-- `electricityUnits` (Number): Consumed units (`electricityCurrent - electricityPrevious`)
-- `electricityRate` (Number): Rate per unit in INR (from settings)
-- `electricityAmount` (Number): Total electricity charge (`units × rate`)
-- `waterPrevious` (Number): Opening water meter reading
-- `waterCurrent` (Number): Closing water meter reading
-- `waterUnits` (Number): Consumed water units (`waterCurrent - waterPrevious`)
-- `waterRate` (Number): Rate per unit in INR (from settings)
-- `waterAmount` (Number): Total water charge (`units × rate`)
-- `garbageAmount` (Number): Fixed sanitation/garbage maintenance charge
-- `otherCharges` (Number): Any ad-hoc adjustments or miscellaneous charges
-- `total` (Number): Net invoice amount (`rent + electricity + water + garbage + other`)
-- `paidAmount` (Number): Cumulative payments received towards this bill
-- `balance` (Number): Remaining unpaid balance (`total - paidAmount`)
-- `status` (String): `PAID` | `PARTIAL` | `PENDING`
-- `paymentMethod` (String): e.g. `UPI`, `CASH`, `NET_BANKING`
-- `paymentDate` (String): ISO date string `YYYY-MM-DD`
+Configure the connection string in `backend/.env` (or environment variables in Render/Docker):
 
-### 3. `settings`
-Global tariff rates configured by the property manager:
-- `electricityRate` (Number): Cost per kWh / electricity unit (default: ₹8)
-- `waterRate` (Number): Cost per 1000L / water unit (default: ₹30)
-- `garbageAmount` (Number): Fixed monthly charge per flat (default: ₹125)
+```env
+# Local MongoDB
+MONGODB_URI=mongodb://localhost:27017/rentpro
 
-## Seed Data
+# OR MongoDB Atlas Cloud
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/rentpro?retryWrites=true&w=majority
+```
 
-A ready-to-use sample dataset with preconfigured flats and October 2026 billing records is provided in [`database/data.json`](./data.json) and mirrored in [`backend/data.json`](../backend/data.json).
+When `MONGODB_URI` is provided, RentPro automatically:
+1. Connects to MongoDB on startup.
+2. Auto-seeds empty MongoDB collections from `backend/data.json` so you immediately have initial units, tenants, and utility tariffs.
+3. Synchronizes updates to MongoDB collections in real-time.
+4. Maintains `backend/data.json` as a local fail-safe snapshot.
+
+If `MONGODB_URI` is unset or MongoDB is temporarily unreachable, RentPro seamlessly falls back to `backend/data.json`.
+
+---
+
+## Mongoose Schemas & Collections
+
+All models are located in [`backend/src/models/`](../backend/src/models/):
+
+| Model | Collection | Primary Keys & Indexes | Description |
+|---|---|---|---|
+| `Property` | `properties` | `id` (unique), `code` | Real-estate buildings and complexes |
+| `Flat` | `flats` | `id` (unique), `flatNumber` (unique), `propertyId` | Individual units, rental amounts & meter readings |
+| `Tenant` | `tenants` | `id` (unique), `flatId`, `propertyId` | Tenant contact info, KYC verification status |
+| `Lease` | `leases` | `id` (unique), `leaseNumber`, `flatId`, `tenantId` | Tenancy agreements, expiry dates, deposits |
+| `Bill` | `bills` | `id` (unique), `flatId`, `month` | Monthly itemized utility and rent invoices |
+| `Maintenance` | `maintenances` | `id` (unique), `ticketNumber` | Repair work orders and technician assignments |
+| `Accounting` | `accountings` | `id` (unique), `type`, `date` | Income, expense, and liability transactions |
+| `Staff` | `staffs` | `id` (unique), `assignedProperty` | Operations managers and technicians |
+| `Vendor` | `vendors` | `id` (unique), `category` | Maintenance contractors and service providers |
+| `Document` | `documents` | `id` (unique) | Lease agreements and safety compliance records |
+| `Notification` | `notifications` | `id` (unique) | System alerts and billing reminders |
+| `AuditLog` | `auditlogs` | `id` (unique), `timestamp` | Security and administrative audit trail |
+| `Setting` | `settings` | `key: 'global'` (unique) | Electricity/water tariffs and auto-increment counters |
+
+---
+
+## Database Management Endpoints
+
+- `GET /api/health` — Checks database health, storage type (`mongodb` or `json`), and counts.
+- `GET /api/database/status` — Returns detailed MongoDB connection state, host, database name, and model counts.
+- `POST /api/database/sync` — Forces synchronization of all in-memory records into MongoDB.
+
+---
+
+## Running with Docker MongoDB
+
+A ready-to-run MongoDB 7 container is included in [`docker-compose.yml`](../docker-compose.yml):
+
+```bash
+docker compose up -d
+```
+This boots up both RentPro API on port `4000` and MongoDB on port `27017` with persistent data volumes.

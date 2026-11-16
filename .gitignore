@@ -2,13 +2,16 @@
 node_modules/
 backend/node_modules/
 mobile/node_modules/
+rentpro-mobile/node_modules/
 
 # Expo
 mobile/.expo/
+rentpro-mobile/.expo/
 .expo/
 
 # Mobile build export
 mobile/dist/
+rentpro-mobile/dist/
 
 # Logs
 *.log
@@ -18,9 +21,21 @@ yarn-error.log*
 
 # Environment and temp
 .env
-.env.local
+.env.*
+!.env.example
+*.env
+backend/.env*
+!backend/.env.example
+mobile/.env*
+!mobile/.env.example
+rentpro-mobile/.env*
+!rentpro-mobile/.env.example
 tmp/
 
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Build artifacts & backups
+*.apk
+*.bak

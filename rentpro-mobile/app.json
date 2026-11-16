@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "RentPro Enterprise",
+    "slug": "rentpro-mobile",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "android": {
+      "package": "com.rsrtechnologies.rentpro",
+      "versionCode": 3,
+      "usesCleartextTraffic": true,
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#17233D"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.rsrtechnologies.rentpro"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-secure-store"
+    ],
+    "splash": {
+      "image": "./assets/splash.png",
+      "backgroundColor": "#17233D",
+      "resizeMode": "contain"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "3e55c3c5-cd16-449b-b1de-0767273d6c9d"
+      }
+    },
+    "owner": "harish1xyxyxy"
+  }
+}

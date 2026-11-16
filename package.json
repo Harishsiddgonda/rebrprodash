@@ -8,6 +8,8 @@
     "build": "npm --prefix backend install && npm --prefix mobile install && npm --prefix mobile run build:web",
     "start:backend": "npm --prefix backend start",
     "start:frontend": "npm --prefix mobile run web",
+    "start:mobile": "npm --prefix rentpro-mobile start",
+    "build:android:preview": "npm --prefix rentpro-mobile run build:android:preview",
     "build:frontend": "npm --prefix mobile run build:web",
     "dev:backend": "npm --prefix backend run dev",
     "test": "npm --prefix backend test"

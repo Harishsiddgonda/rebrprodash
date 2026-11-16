@@ -10,3 +10,5 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20.18.0
+      - key: MONGODB_URI
+        value: mongodb+srv://harishsiddgonda_db_user:UkwtKV%254n57%24b8.@custer.qqhytpd.mongodb.net/rentpro?retryWrites=true&w=majority

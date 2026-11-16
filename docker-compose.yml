@@ -7,6 +7,21 @@ services:
     environment:
       - PORT=4000
       - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongodb:27017/rentpro
     volumes:
       - ./backend/data.json:/app/backend/data.json
+    depends_on:
+      - mongodb
     restart: unless-stopped
+
+  mongodb:
+    image: mongo:7-jammy
+    container_name: rentpro-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
