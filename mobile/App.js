@@ -19,6 +19,7 @@ import * as SecureStore from 'expo-secure-store';
 
 // Dynamic API URL Configuration & Auto-Discovery
 const CANDIDATE_SERVERS = [
+  'https://rentprodash.onrender.com',
   'http://192.168.1.9:4000',
   'http://192.168.1.2:4000',
   'http://10.0.2.2:4000',
@@ -34,8 +35,7 @@ const getApiUrl = () => {
   }
   const configuredUrl = process.env.EXPO_PUBLIC_API_URL;
   if (configuredUrl) return configuredUrl.replace(/\/+$/, '');
-  if (typeof __DEV__ !== 'undefined' && __DEV__) return Platform.OS === 'android' ? 'http://10.0.2.2:4000' : 'http://192.168.1.9:4000';
-  return 'http://192.168.1.9:4000';
+  return 'https://rentprodash.onrender.com';
 };
 
 let currentApiUrl = getApiUrl();
@@ -671,16 +671,16 @@ export default function App() {
             </Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
               <TouchableOpacity
-                onPress={() => { setServerUrlInput('http://192.168.1.9:4000'); initAuth('http://192.168.1.9:4000'); }}
+                onPress={() => { setServerUrlInput('https://rentprodash.onrender.com'); initAuth('https://rentprodash.onrender.com'); }}
                 style={{ backgroundColor: '#EFF6FF', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6, borderWidth: 1, borderColor: '#BFDBFE' }}
               >
-                <Text style={{ fontSize: 12, fontWeight: '700', color: COLORS.primaryBlue }}>192.168.1.9:4000 (Current)</Text>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: COLORS.primaryBlue }}>Cloud (Render)</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => { setServerUrlInput('http://192.168.1.2:4000'); initAuth('http://192.168.1.2:4000'); }}
+                onPress={() => { setServerUrlInput('http://192.168.1.9:4000'); initAuth('http://192.168.1.9:4000'); }}
                 style={{ backgroundColor: '#F1F5F9', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6, borderWidth: 1, borderColor: '#CBD5E1' }}
               >
-                <Text style={{ fontSize: 12, fontWeight: '700', color: COLORS.navyDark }}>192.168.1.2:4000</Text>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: COLORS.navyDark }}>Local (192.168.1.9)</Text>
               </TouchableOpacity>
             </View>
 
